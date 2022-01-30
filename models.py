@@ -1,19 +1,16 @@
 from enum import unique
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
-
 from mongoengine import Document, fields
 
 
 def _to_pydantic(doc: Document) -> dict:
     data = doc.to_mongo()
     data.pop("_id")
-    data['id'] = str(doc.id)
+    data["id"] = str(doc.id)
     return data
 
 
 class User(Document):
-    meta = {'collection': 'users'}
+    meta = {"collection": "users"}
     user_name = fields.StringField(unique=True)
     email = fields.StringField(unique=True)
     hashed_password = fields.StringField()
@@ -24,7 +21,7 @@ class User(Document):
 
 
 class Item(Document):
-    meta = {'collection': 'items'}
+    meta = {"collection": "items"}
 
     title = fields.StringField()
     description = fields.StringField()

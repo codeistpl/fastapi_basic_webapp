@@ -1,4 +1,3 @@
-from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from bson import ObjectId
 
@@ -19,19 +18,17 @@ def get_users(skip: int = 0, limit: int = 100):
 
 
 def create_user(user: schemas.UserCreate) -> schemas.User:
-    db_user = models.User.objects.only('email').filter(email=user.email)
+    db_user = models.User.objects.only("email").filter(email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    db_user = models.User.objects.only(
-        'user_name').filter(user_name=user.user_name)
+    db_user = models.User.objects.only("user_name").filter(user_name=user.user_name)
     if db_user:
-        raise HTTPException(
-            status_code=400, detail="User name already registered")
+        raise HTTPException(status_code=400, detail="User name already registered")
 
-    hashed_password = sha512(
-        str(user.password + "this is salt").encode()).hexdigest()
-    db_user = models.User(user_name=user.user_name,
-                          email=user.email, hashed_password=hashed_password)
+    hashed_password = sha512(str(user.password + "this is salt").encode()).hexdigest()
+    db_user = models.User(
+        user_name=user.user_name, email=user.email, hashed_password=hashed_password
+    )
     db_user.save()
     return schemas.User(**db_user.pydantic())
 

@@ -4,7 +4,7 @@ from py_object_id import PyObjectId
 
 class ItemBase(BaseModel):
     title: str
-    description: str | None = None
+    description: str
 
 
 class ItemCreate(ItemBase):
