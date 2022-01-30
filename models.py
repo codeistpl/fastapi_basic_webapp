@@ -1,27 +1,47 @@
-from enum import unique
-from mongoengine import Document, fields
+from pydantic import BaseModel, Field, EmailStr
+from typing import Optional
+from py_object_id import PyObjectId
+from bson import ObjectId
+from datetime import datetime
 
 
-def _to_pydantic(doc: Document) -> dict:
-    data = doc.to_mongo()
-    data.pop("_id")
-    data["id"] = str(doc.id)
-    return data
+class UpdateUser(BaseModel):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    user_name: str = Field(...)
+    real_name: str = Field(...)
+    email: EmailStr = Field(...)
+    password: str = Field(...)
+
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+        schema_extra = {
+            "example": {
+                "user_name": "jdo",
+                "real_name": "Jane Doe",
+                "email": "jdoe@example.com",
+                "password": "example",
+            }
+        }
 
 
-class User(Document):
-    meta = {"collection": "users"}
-    user_name = fields.StringField(unique=True)
-    email = fields.StringField(unique=True)
-    hashed_password = fields.StringField()
-    is_active = fields.BooleanField(default=True)
+class User(UpdateUser):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    hashed_password: str = Field(...)
+    created_at: datetime
+    last_login: datetime
+    active: bool = Field(default=True)
 
-    def pydantic(self):
-        return _to_pydantic(self)
-
-
-class Item(Document):
-    meta = {"collection": "items"}
-
-    title = fields.StringField()
-    description = fields.StringField()
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+        schema_extra = {
+            "example": {
+                "user_name": "jdo",
+                "real_name": "Jane Doe",
+                "email": "jdoe@example.com",
+                "created_at": "today",
+            }
+        }
